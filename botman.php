@@ -126,26 +126,25 @@ try {
             exit();
         }
         
-        // Cari ayat
+        // Cari ayat - perbaikan utama di sini
         $ayatData = null;
         $totalAyat = count($json['data']['ayat']);
         
-        foreach ($json['data']['ayat'] as $index => $item) {
-            if (isset($item['nomor']) && $item['nomor'] == $ayat) {
-                $ayatData = $item;
-                break;
-            } elseif (($index + 1) == $ayat) {
+        foreach ($json['data']['ayat'] as $item) {
+            // Cek field nomorAyat (sesuai dengan contoh JSON yang diberikan)
+            if (isset($item['nomorAyat']) && $item['nomorAyat'] == $ayat) {
                 $ayatData = $item;
                 break;
             }
         }
         
         if ($ayatData) {
-            $namaSurat = $json['data']['nama_latin'];
-            $namaSuratArab = $json['data']['nama'];
-            $nomorAyat = $ayatData['nomor'] ?? $ayat;
-            $teksArab = $ayatData['teks_arab'] ?? 'النص العربي غير متوفر';
-            $teksIndonesia = $ayatData['teks_indonesia'] ?? 'Terjemahan tidak tersedia';
+            // Gunakan field yang benar sesuai API
+            $namaSurat = $json['data']['namaLatin'] ?? 'Unknown';  // Perbaikan: gunakan namaLatin
+            $namaSuratArab = $json['data']['nama'] ?? '';
+            $nomorAyat = $ayatData['nomorAyat'] ?? $ayat;
+            $teksArab = $ayatData['teksArab'] ?? 'النص العربي غير متوفر';  // Perbaikan: gunakan teksArab
+            $teksIndonesia = $ayatData['teksIndonesia'] ?? 'Terjemahan tidak tersedia';  // Perbaikan: gunakan teksIndonesia
             
             $text = "📖 <b>$namaSurat ($namaSuratArab) : $nomorAyat</b><br><br>";
             $text .= "<div style='font-size: 20px; text-align: right; margin: 15px 0; font-family: \"Amiri\", \"Traditional Arabic\", serif; line-height: 1.8; padding: 10px; background: rgba(59, 130, 246, 0.1); border-radius: 8px;'>$teksArab</div>";
@@ -193,13 +192,10 @@ try {
             exit();
         }
         
-        // Cari ayat
+        // Cari ayat dengan field yang benar
         $ayatData = null;
-        foreach ($ayatJson['data']['ayat'] as $index => $item) {
-            if (isset($item['nomor']) && $item['nomor'] == $ayat) {
-                $ayatData = $item;
-                break;
-            } elseif (($index + 1) == $ayat) {
+        foreach ($ayatJson['data']['ayat'] as $item) {
+            if (isset($item['nomorAyat']) && $item['nomorAyat'] == $ayat) {  // Gunakan nomorAyat
                 $ayatData = $item;
                 break;
             }
@@ -207,22 +203,19 @@ try {
         
         // Cari tafsir
         $tafsirData = null;
-        foreach ($tafsirJson['data']['tafsir'] as $index => $item) {
+        foreach ($tafsirJson['data']['tafsir'] as $item) {
             if (isset($item['ayat']) && $item['ayat'] == $ayat) {
-                $tafsirData = $item;
-                break;
-            } elseif (($index + 1) == $ayat) {
                 $tafsirData = $item;
                 break;
             }
         }
         
         if ($ayatData && $tafsirData) {
-            $namaSurat = $ayatJson['data']['nama_latin'];
-            $namaSuratArab = $ayatJson['data']['nama'];
-            $nomorAyat = $ayatData['nomor'] ?? $ayat;
-            $teksArab = $ayatData['teks_arab'] ?? 'النص العربي غير متوفر';
-            $teksIndonesia = $ayatData['teks_indonesia'] ?? 'Terjemahan tidak tersedia';
+            $namaSurat = $ayatJson['data']['namaLatin'] ?? 'Unknown';  // Gunakan namaLatin
+            $namaSuratArab = $ayatJson['data']['nama'] ?? '';
+            $nomorAyat = $ayatData['nomorAyat'] ?? $ayat;
+            $teksArab = $ayatData['teksArab'] ?? 'النص العربي غير متوفر';  // Gunakan teksArab
+            $teksIndonesia = $ayatData['teksIndonesia'] ?? 'Terjemahan tidak tersedia';  // Gunakan teksIndonesia
             $teksTafsir = $tafsirData['teks'] ?? 'Tafsir tidak tersedia';
             
             $text = "📚 <b>Tafsir $namaSurat ($namaSuratArab) : $nomorAyat</b><br><br>";
@@ -260,7 +253,7 @@ try {
     }
 
 } catch (Exception $e) {
-    echo json_encode(['reply' => '❌ Terjadi kesalahan sistem. Silakan coba lagi.']);
+    echo json_encode(['reply' => '❌ Terjadi kesalahan sistem. Silakan coba lagi.', 'debug' => $e->getMessage()]);
 }
 
 function getApiData($url) {
