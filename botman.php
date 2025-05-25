@@ -1,16 +1,16 @@
 <?php
 header('Content-Type: application/json');
 
-// Baca pesan dari JSON body
+// Ambil input dari user
 $data = json_decode(file_get_contents("php://input"), true);
 $message = strtolower(trim($data['message'] ?? ''));
 
-// Cek format input "al-baqarah:2"
+// Format yang valid: al-baqarah:2
 if (preg_match('/([a-z\-]+):([0-9]+)/', $message, $matches)) {
     $suratName = $matches[1];
-    $ayat = $matches[2];
+    $ayat = intval($matches[2]);
 
-    // Daftar surat
+    // Pemetaan surat ke ID
     $daftarSurat = [
         "al-fatihah" => 1,
         "al-baqarah" => 2,
@@ -23,28 +23,38 @@ if (preg_match('/([a-z\-]+):([0-9]+)/', $message, $matches)) {
         "at-taubah" => 9,
         "yunus" => 10,
         "hud" => 11,
-        "yusuf" => 12
-        // Tambahkan sesuai kebutuhan
+        "yusuf" => 12,
+        // Tambahkan lebih banyak sesuai kebutuhan
     ];
 
     if (isset($daftarSurat[$suratName])) {
         $idSurat = $daftarSurat[$suratName];
-        $apiUrl = "https://equran.id/api/surat/$idSurat/$ayat";
+        $apiUrl = "https://equran.id/api/v2/surat/$idSurat";
 
         $ch = curl_init($apiUrl);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         $response = curl_exec($ch);
+        curl_close($ch);
 
-        if ($response === false) {
-            echo json_encode(['reply' => '❌ Gagal menghubungi API (cURL).']);
+        if (!$response) {
+            echo json_encode(['reply' => '❌ Gagal menghubungi API.']);
             exit;
         }
 
         $json = json_decode($response, true);
+        $foundAyat = null;
 
-        if ($json && isset($json['ayat'])) {
-            $text = "<b>{$json['surat']['nama_latin']} : {$json['ayat']['nomor']}</b><br><i>{$json['ayat']['arab']}</i><br>{$json['ayat']['idn']}";
+        foreach ($json['data']['ayat'] as $item) {
+            if ($item['nomor'] == $ayat) {
+                $foundAyat = $item;
+                break;
+            }
+        }
+
+        if ($foundAyat) {
+            $namaSurat = $json['data']['nama_latin'];
+            $text = "<b>$namaSurat : {$foundAyat['nomor']}</b><br><i>{$foundAyat['teks_arab']}</i><br>{$foundAyat['teks_indonesia']}";
             echo json_encode(['reply' => $text]);
         } else {
             echo json_encode(['reply' => '❌ Ayat tidak ditemukan.']);
