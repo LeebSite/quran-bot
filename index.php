@@ -29,38 +29,48 @@
   </footer>
 
   <!-- Script -->
-  <script>
-    const form = document.getElementById('chat-form');
-    const input = document.getElementById('user-input');
-    const chatBox = document.getElementById('chat-box');
+<script>
+  const form = document.getElementById('chat-form');
+  const input = document.getElementById('user-input');
+  const chatBox = document.getElementById('chat-box');
 
-    form.addEventListener('submit', async function(e) {
-      e.preventDefault();
-      const userText = input.value.trim();
-      if (!userText) return;
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const userText = input.value.trim();
+    if (!userText) return;
 
-      // Tampilkan pesan user
-      chatBox.innerHTML += `<div class="text-right"><div class="bg-blue-600 inline-block p-3 rounded-xl mb-1 max-w-lg">${userText}</div></div>`;
-      input.value = '';
+    // Tampilkan pesan user
+    chatBox.innerHTML += `
+      <div class="text-right">
+        <div class="bg-blue-600 inline-block p-3 rounded-xl mb-1 max-w-lg">${userText}</div>
+      </div>
+    `;
+    input.value = '';
 
-      try {
-        const res = await fetch('botman.php', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({ message: userText })
-        });
+    try {
+      const res = await fetch('botman.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: userText })
+      });
 
-        if (!res.ok) throw new Error('Gagal terhubung ke server');
+      const data = await res.json();
 
-        const data = await res.json();
+      chatBox.innerHTML += `
+        <div class="text-left">
+          <div class="bg-gray-700 inline-block p-3 rounded-xl max-w-lg">${data.reply}</div>
+        </div>
+      `;
+    } catch (err) {
+      chatBox.innerHTML += `
+        <div class="text-left text-red-400">
+          <i>Gagal memuat balasan: ${err.message}</i>
+        </div>
+      `;
+    }
 
-        chatBox.innerHTML += `<div class="text-left"><div class="bg-gray-700 inline-block p-3 rounded-xl max-w-lg">${data.reply}</div></div>`;
-      } catch (err) {
-        chatBox.innerHTML += `<div class="text-left text-red-400"><i>Gagal memuat balasan: ${err.message}</i></div>`;
-      }
-
-      chatBox.scrollTop = chatBox.scrollHeight;
-    });
-  </script>
+    chatBox.scrollTop = chatBox.scrollHeight;
+  });
+</script>
 </body>
 </html>
