@@ -1,0 +1,20 @@
+body {
+  font-family: 'Nunito', Arial, sans-serif;
+}
+.arabic-text {
+  font-family: 'Amiri', 'Traditional Arabic', serif;
+}
+.chat-animation {
+  animation: slideIn 0.3s ease-out;
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.typing-indicator {
+  animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+  0%, 50%, 100% { opacity: 1; }
+  25%, 75% { opacity: 0.5; }
+}

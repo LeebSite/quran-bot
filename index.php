@@ -5,27 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Quran ChatBot</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
-  <style>
-    .arabic-text {
-      font-family: 'Amiri', 'Traditional Arabic', serif;
-    }
-    .chat-animation {
-      animation: slideIn 0.3s ease-out;
-    }
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .typing-indicator {
-      animation: pulse 1.5s infinite;
-    }
-    @keyframes pulse {
-      0%, 50%, 100% { opacity: 1; }
-      25%, 75% { opacity: 0.5; }
-    }
-  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/png" href="src/icon-quran-bot.png">
 </head>
+
 <body class="bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 text-white flex flex-col h-screen">
 
   <!-- Header -->
