@@ -59,6 +59,25 @@
           $jadwalUrl = "https://api.myquran.com/v2/sholat/jadwal/$kotaId/$date";
           $jadwalData = json_decode(file_get_contents($jadwalUrl), true);
 
+          if ($jadwalData && $jadwalData['status']) {
+            $jadwal = $jadwalData['data']['jadwal'];
+            echo "<div class='bg-gray-800 p-6 rounded shadow-md text-left'>";
+            echo "<h3 class='text-xl font-semibold mb-2 text-blue-300'>Jadwal Shalat untuk {$lokasi}</h3>";
+            echo "<p class='text-sm text-gray-400 mb-4'>Tanggal: {$jadwal['tanggal']}</p>";
+            echo "<ul class='space-y-2'>";
+            foreach (['imsak', 'subuh', 'terbit', 'dhuha', 'dzuhur', 'ashar', 'maghrib', 'isya'] as $waktu) {
+              echo "<li class='flex justify-between border-b border-gray-700 py-1'>
+                      <span class='capitalize'>" . ucfirst($waktu) . "</span>
+                      <span>{$jadwal[$waktu]}</span>
+                    </li>";
+            }
+            echo "</ul></div>";
+          } else {
+            echo "<p class='text-red-400 mt-4'>Gagal memuat jadwal shalat.</p>";
+          }
+        } else {
+          echo "<p class='text-yellow-400 mt-4'>Kota tidak ditemukan. Coba nama lain.</p>";
+        }
       }
       ?>
     </div>
