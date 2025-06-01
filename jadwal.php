@@ -1,60 +1,73 @@
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quran ChatBot | Jadwal Shalat</title>
-  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
-  <link rel="icon" type="image/png" href="src/icon-quran-bot.png">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jadwal Shalat</title>
   <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 min-h-screen text-gray-800">
-  <div class="max-w-xl mx-auto mt-10 bg-white p-6 rounded shadow-md">
-    <h1 class="text-2xl font-bold mb-4 text-center text-blue-600">Jadwal Sholat</h1>
-
-    <form method="GET" class="mb-6 flex gap-2">
-      <input type="text" name="kota" placeholder="Masukkan nama kota..." class="flex-grow border p-2 rounded" required>
-      <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Cari</button>
-    </form>
-
-    <?php
-    if (isset($_GET['kota'])) {
-        $kota = urlencode($_GET['kota']);
-
-        // Step 1: Cari ID kota
-        $cariKotaJson = file_get_contents("https://api.myquran.com/v2/sholat/kota/cari/$kota");
-        $cariKota = json_decode($cariKotaJson, true);
-
-        if ($cariKota && isset($cariKota['data'][0])) {
-            $idKota = $cariKota['data'][0]['id'];
-            $namaKota = $cariKota['data'][0]['lokasi'];
-
-            // Step 2: Ambil Jadwal Sholat
-            $today = date('Y-m-d');
-            $jadwalJson = file_get_contents("https://api.myquran.com/v2/sholat/jadwal/$idKota/$today");
-            $jadwal = json_decode($jadwalJson, true);
-
-            if ($jadwal && isset($jadwal['data']['jadwal'])) {
-                $data = $jadwal['data']['jadwal'];
-                echo "<div class='text-center mb-4'><h2 class='text-lg font-semibold text-green-600'>Jadwal Sholat - $namaKota</h2><p class='text-sm text-gray-500'>Tanggal: {$data['tanggal']}</p></div>";
-
-                echo "<ul class='space-y-2'>";
-                foreach (['subuh', 'dzuhur', 'ashar', 'maghrib', 'isya'] as $sholat) {
-                    echo "<li class='flex justify-between border-b pb-1'>
-                            <span class='capitalize'>$sholat</span>
-                            <span>{$data[$sholat]}</span>
-                          </li>";
-                }
-                echo "</ul>";
-            } else {
-                echo "<p class='text-red-500'>Gagal mengambil jadwal sholat.</p>";
-            }
-        } else {
-            echo "<p class='text-red-500'>Kota tidak ditemukan.</p>";
-        }
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/png" href="src/icon-quran-bot.png" />
+  <style>
+    body {
+      font-family: 'Nunito', sans-serif;
     }
-    ?>
-  </div>
+  </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="bg-gray-800 shadow-md">
+    <div class="max-w-7xl mx-auto flex justify-between items-center px-6 py-4">
+      <h1 class="text-2xl font-bold text-blue-400">Jadwal Shalat</h1>
+      <nav>
+        <a href="index.php" class="text-sm text-gray-300 hover:text-white transition">Home</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="flex-grow px-6 py-10">
+    <div class="max-w-2xl mx-auto text-center">
+      <h2 class="text-3xl font-bold mb-4">Cek Jadwal Shalat</h2>
+      <form method="GET" class="mb-6">
+        <input
+          type="text"
+          name="kota"
+          placeholder="Masukkan nama kota (misal: kediri)"
+          class="w-full px-4 py-2 rounded text-black focus:outline-none"
+          value="<?= isset($_GET['kota']) ? htmlspecialchars($_GET['kota']) : '' ?>"
+        />
+        <button
+          type="submit"
+          class="mt-4 bg-green-500 hover:bg-green-600 px-6 py-2 text-white rounded"
+        >
+          Cari Jadwal
+        </button>
+      </form>
+
+      <?php
+      if (isset($_GET['kota']) && !empty($_GET['kota'])) {
+        $keyword = urlencode($_GET['kota']);
+        $searchUrl = "https://api.myquran.com/v2/sholat/kota/cari/$keyword";
+        $searchData = json_decode(file_get_contents($searchUrl), true);
+
+        if ($searchData && $searchData['status'] && count($searchData['data']) > 0) {
+          $kotaId = $searchData['data'][0]['id'];
+          $lokasi = $searchData['data'][0]['lokasi'];
+
+          $date = date('Y-m-d');
+          $jadwalUrl = "https://api.myquran.com/v2/sholat/jadwal/$kotaId/$date";
+          $jadwalData = json_decode(file_get_contents($jadwalUrl), true);
+
+      }
+      ?>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 text-center p-4 text-sm text-gray-400">
+    &copy; <?= date('Y'); ?> Quran ChatBot. All rights reserved.
+  </footer>
+
 </body>
 </html>
